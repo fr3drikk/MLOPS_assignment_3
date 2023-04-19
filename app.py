@@ -5,6 +5,8 @@ import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
+import mlflow
+from PIL import Image
 
 # Database connection
 print("Connecting to database...")
@@ -44,7 +46,12 @@ print("Dropping rows with NaN values...")
 df_EDA.dropna(axis=0, inplace=True)
 df_general.dropna(axis=0, inplace=True)
 print("Rows dropped.")
-
+mlflow.set_tracking_uri("sqlite:///HR_DB.db")
+experiment_id = "1" 
+run_id = "9e99a255ada3438badd5353d66b28e27"
+# Get the metrics of your model 
+metrics = mlflow.get_run(run_id).data.metrics
+metrics_df = pd.DataFrame(metrics.items(), columns=["Metric", "Value"])
 def app():
     st.set_page_config(page_title="Employee Attrition Analysis", page_icon=":guardsman:", layout="wide")
 
@@ -56,7 +63,13 @@ def app():
 
     if analysis_type == "Exploratory Data Analysis (EDA)":
         st.subheader("Exploratory Data Analysis (EDA)")
-
+        st.title("Machine Learning Model Metrics")
+        st.write(metrics_df)
+        url = 'https://github.com/CNielsen94/Exercises_AAUBSDS/blob/main/MLOps_assignments/Assignment_three/Database/mlruns/1/9e99a255ada3438badd5353d66b28e27/artifacts/feature_importances.png'
+        filename = 'feature_importances.png'
+        urllib.request.urlretrieve(url, filename)
+        img = Image.open("feature_importances.png")
+        st.image(img, caption="Feature Importances Plot")
         # Age filter for talented employees
         print("Filtering by age...")
         df_EDA_u30 = df_EDA[df_EDA['Age'] < 30]

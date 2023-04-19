@@ -4,4 +4,4 @@ numpy
 matplotlib
 seaborn
 mlflow
-PIL
+Pillow
